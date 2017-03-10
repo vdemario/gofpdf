@@ -1809,12 +1809,11 @@ func ExampleFpdf_ClipRect() {
 
 // This example demonstrate wrapped table cells
 func ExampleFpdf_Rect() {
-	marginCell := 2. // margin of top/bottom of cell
 	pdf := gofpdf.New("P", "mm", "A4", "")
 	pdf.SetFont("Arial", "", 12)
 	pdf.AddPage()
-	pagew, pageh := pdf.GetPageSize()
-	mleft, mright, _, mbottom := pdf.GetMargins()
+	pagew, _ := pdf.GetPageSize()
+	mleft, mright, _, _ := pdf.GetMargins()
 
 	cols := []float64{60, 100, pagew - mleft - mright - 100 - 60}
 	rows := [][]string{}
@@ -1823,6 +1822,19 @@ func ExampleFpdf_Rect() {
 		rows = append(rows, []string{word, word, word})
 	}
 
+	wrappedTable(rows, cols, pdf)
+
+	fileStr := example.Filename("Fpdf_WrappedTableCells")
+	err := pdf.OutputFileAndClose(fileStr)
+	example.Summary(err, fileStr)
+	// Output:
+	// Successfully generated pdf/Fpdf_WrappedTableCells.pdf
+}
+
+func wrappedTable(rows [][]string, cols []float64, pdf *gofpdf.Fpdf) {
+	marginCell := 2. // margin of top/bottom of cell
+	_, pageh := pdf.GetPageSize()
+	_, _, _, mbottom := pdf.GetMargins()
 	for _, row := range rows {
 		curx, y := pdf.GetXY()
 		x := curx
@@ -1851,9 +1863,4 @@ func ExampleFpdf_Rect() {
 		}
 		pdf.SetXY(curx, y+height)
 	}
-	fileStr := example.Filename("Fpdf_WrappedTableCells")
-	err := pdf.OutputFileAndClose(fileStr)
-	example.Summary(err, fileStr)
-	// Output:
-	// Successfully generated pdf/Fpdf_WrappedTableCells.pdf
 }
